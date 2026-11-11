@@ -134,6 +134,38 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
       setTelegramStatusMessage(tgData.message);
       setIsTelegramError(!tgData.success);
 
+      // If Stripe payment method is selected, create Stripe checkout session and redirect
+      if (paymentMethod === 'stripe') {
+        try {
+          const stripeRes = await fetch('/api/stripe/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order: orderData,
+              origin: window.location.origin,
+            }),
+          });
+          const stripeData = await stripeRes.json();
+
+          if (stripeData.success && stripeData.url) {
+            clearCart();
+            window.location.href = stripeData.url;
+            return;
+          } else if (stripeData.requiresKey) {
+            setTelegramStatusMessage(
+              (tgData.message ? `${tgData.message} • ` : '') +
+              '💳 Stripe шлюз подключен! Добавьте STRIPE_SECRET_KEY в .env.local для перенаправления на реальную оплату.'
+            );
+          } else if (stripeData.message) {
+            setTelegramStatusMessage(
+              (tgData.message ? `${tgData.message} • ` : '') + `Stripe: ${stripeData.message}`
+            );
+          }
+        } catch (stripeErr) {
+          console.warn('Stripe checkout error:', stripeErr);
+        }
+      }
+
       // 3. Fireworks celebration!
       confetti({
         particleCount: 120,
@@ -392,10 +424,11 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 block">
                   {getTranslation(language, 'paymentMethod')}
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {[
                     { id: 'click', label: 'Click Up', color: 'text-blue-500' },
                     { id: 'payme', label: 'Payme', color: 'text-emerald-500' },
+                    { id: 'stripe', label: 'Stripe Card', color: 'text-indigo-500' },
                     { id: 'telegram', label: 'Telegram Bot', color: 'text-cyan-500' },
                     { id: 'cash', label: 'Наличными', color: 'text-slate-400' },
                   ].map((pm) => (
@@ -496,10 +529,14 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose }) => {
                 disabled={isSubmitting || cart.length === 0}
                 className="w-full py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-xl shadow-cyan-500/25 transition active:scale-95 disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
+                <CreditCard className="w-4 h-4" />
                 <span>
                   {isSubmitting
-                    ? 'Отправка чека...'
+                    ? paymentMethod === 'stripe'
+                      ? 'Переход к Stripe...'
+                      : 'Отправка чека...'
+                    : paymentMethod === 'stripe'
+                    ? 'Оплатить через Stripe (Visa / Mastercard)'
                     : getTranslation(language, 'confirmOrder')}
                 </span>
               </button>

@@ -102,7 +102,7 @@ export interface Order {
   customerTelegram?: string; // Optional customer telegram handle
   city: string;
   address: string;
-  paymentMethod: 'click' | 'payme' | 'cash' | 'telegram';
+  paymentMethod: 'click' | 'payme' | 'cash' | 'telegram' | 'stripe';
   status: OrderStatus;
   items: CartItem[];
   totalUZS: number;

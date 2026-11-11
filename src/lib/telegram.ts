@@ -59,6 +59,7 @@ export function generateTelegramReceiptMessage(order: Order): string {
     payme: 'Payme (Онлайн)',
     cash: 'Наличными при получении',
     telegram: 'Оплата в Telegram Bot',
+    stripe: 'Stripe (Visa / Mastercard / Apple Pay)',
   };
 
   let itemsText = '';
