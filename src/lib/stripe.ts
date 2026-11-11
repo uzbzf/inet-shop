@@ -31,9 +31,7 @@ export function getStripe(): Stripe | null {
   if (!secretKey) return null;
 
   if (!stripeClient) {
-    stripeClient = new Stripe(secretKey, {
-      apiVersion: '2026-03-25.acacia' as any,
-    });
+    stripeClient = new Stripe(secretKey);
   }
 
   return stripeClient;
