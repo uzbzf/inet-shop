@@ -5,6 +5,7 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { OrderModal } from '@/components/cart/OrderModal';
+import { StripePaymentStatusModal } from '@/components/cart/StripePaymentStatusModal';
 import { useStore } from '@/store/useStore';
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -59,6 +60,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         isOpen={isOrderModalOpen}
         onClose={closeOrderModal}
       />
+
+      {/* Stripe Payment Return Status Modal */}
+      <StripePaymentStatusModal />
     </div>
   );
 };

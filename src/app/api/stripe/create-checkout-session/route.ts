@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: 'payment',
-      success_url: `${baseOrigin}/?stripe=success&orderId=${order.id}&orderNumber=${order.orderNumber}`,
+      success_url: `${baseOrigin}/?stripe=success&orderId=${order.id}&orderNumber=${order.orderNumber}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseOrigin}/?stripe=cancel&orderId=${order.id}`,
       client_reference_id: order.id,
       customer_email: order.customerTelegram?.includes('@') && !order.customerTelegram.includes('t.me')
